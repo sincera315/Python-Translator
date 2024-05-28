@@ -1,0 +1,50 @@
+import IPython
+import torchaudio
+from tortoise.api import TextToSpeech
+tts = TextToSpeech()
+
+import whisper
+import googletrans
+from googletrans import Translator
+
+text = input("Enter the text you want to get translated: \n")
+print("Your given text:\n", text)
+
+# Initialize the translator
+translator = Translator()
+num= input("Enter the number of the language you intend to translate it too:\n 1)_Arabic\n 2)_Urdu\n 3)_Japanese\n 4)_Korean\n 5)_Chinese\n  ")
+# Determine the language code based on the user's input
+if num == '1':
+    lan = "ar"
+elif num == '2':
+    lan = "ur"
+elif num == '3':
+    lan = "ja"
+elif num == '4':
+    lan = "ko"
+elif num == '5':
+    lan = "zh-CN"
+else:
+    lan = None
+    print("You have entered a non-existent number. Please redo it from the start.")
+
+# If the language code is valid, proceed with translation
+if lan:
+    translated_text = translator.translate(text, dest=lan).text
+    print("Translated text:", translated_text)
+
+# Pick a "preset mode" to determine quality. Options: {"ultra_fast", "fast" (default), "standard", "high_quality"}.
+preset = "standard"
+audio_to_Text_given = tts.tts_with_preset(translated_text, voice_samples=None, conditioning_latents=None, preset=preset)
+torchaudio.save('current.wav', audio_to_Text_given.squeeze(0).cpu(), 24000)
+model = whisper.load_model("base")
+result = model.transcribe("current.wav")
+IPython.display.Audio('current.wav')
+#currently working on being able to add audio and then translate it through it so its in accessible at the moment
+# -------------------------------------------------------------------
+# ********************************************************************
+# in case you entered an audio file.
+# Model Options
+# [tiny, base, small,	medium, large, large-v2]
+# model = whisper.load_model("base")
+# result = model.transcribe("generated.wav")
